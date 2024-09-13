@@ -1,8 +1,11 @@
 const jwt = require("jsonwebtoken")
-
 const TOKEN_KEY = '45465564'
+require("dotenv").config()
 
-const AuthUncle = (req, res, next)=>{
+const STUDIO_KEY = process.env.STUDIO_KEY
+const CLIENT_KEY = process.env.CLIENT_KEY
+
+const StudioAuth = (req, res, next)=>{
     const token = req.header("Authorization")
 
     if (!header) {
@@ -12,11 +15,27 @@ const AuthUncle = (req, res, next)=>{
     // Verify token
 
     try {
-        const decoded = jwt.verify(token, TOKEN_KEY)
+        const decoded = jwt.verify(token, STUDIO_KEY)
         res.user = decoded.user
     } catch (error) {
         res.status(401).json({message: "Token is invalid"})
     }
+    next()
 }
 
-export default AuthUncle
+const ClientAuth = (req, res, next)=>{
+    const token = req.header("Authorization")
+
+    if (!token) {
+        return res.status(401).json({message: "No Token! Authorization is denied"})
+    }
+
+    try {
+        const decoded = jwt.verify(token, CLIENT_KEY)
+    } catch (error) {
+        res.status(401).json({message: "Token is invalid"})
+    }
+    next()
+}
+
+module.exports =  { StudioAuth, ClientAuth}

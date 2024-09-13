@@ -40,9 +40,13 @@ const clientSchema  = Schema({
     venue: {
         type:String,
         required: false
+    },
+    status:{
+        type: String,
+        required: false
     }
 })
 
-const client = mongoose.model(clientSchema, "clients")
+const Client = mongoose.model(clientSchema, "clients")
 
-export default client
+module.exports = Client

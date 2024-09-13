@@ -3,10 +3,18 @@ const multer = require("multer");
 const fs = require("fs-extra");
 const path = require("path");
 const cors = require("cors");
+const databaseConnection = require("./models");
+require("dotenv").config()
+
+
+const DATABSE_URL = process.env.DATABASE
 
 const app = express();
 app.use(cors());
 app.use(express.json()); // For parsing JSON bodies
+
+// Database connection
+databaseConnection(DATABSE_URL)
 
 // Temporary storage for chunks
 const upload = multer({ dest: "uploads/temp" });
