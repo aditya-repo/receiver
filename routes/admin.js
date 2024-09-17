@@ -1,6 +1,11 @@
-const express = require("express")
-const app = express()
+const express = require("express");
+const { adminSignin, adminSignup } = require("../controllers/auth");
 
-app.route('/').get()
+const app = express();
 
-module.exports = app
+app.use(express.json()); // Middleware to parse JSON bodies
+
+app.post('/signin', adminSignin);
+app.post('/signup', adminSignup);
+
+module.exports = app;

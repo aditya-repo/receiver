@@ -2,6 +2,10 @@ const allStudio = (req, res)=>{
 
 }
 
+const getDashboardDetails = (req, res)=>{
+    // const
+}
+
 const singleStudio = (req, res)=>{
 
 }
