@@ -1,9 +1,14 @@
+const Studio = require("../models/studios")
+
 const allStudio = (req, res)=>{
 
 }
 
-const getDashboardDetails = (req, res)=>{
-    // const
+const getDashboardDetails = async (req, res)=>{
+
+    const result = await Studio.find()
+    
+    res.status(200).json(result)
 }
 
 const singleStudio = (req, res)=>{
@@ -60,4 +65,8 @@ const userData = (req, res)=>{
 
 const serviceDurationExtension = (req, res)=>{
     
+}
+
+module.exports = {
+    getDashboardDetails
 }

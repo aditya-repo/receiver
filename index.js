@@ -6,7 +6,9 @@ const cors = require("cors");
 const databaseConnection = require("./models");
 require("dotenv").config()
 
-const adminRouter = require("./routes/admin")
+const adminRouter = require("./routes/admin");
+const { adminSignin } = require("./controllers/auth");
+const { adminAuth } = require("./middlewares/auth");
 
 
 const DATABSE_URL = process.env.DATABASE
@@ -21,7 +23,8 @@ databaseConnection(DATABSE_URL)
 // Temporary storage for chunks
 const upload = multer({ dest: "uploads/temp" });
 
-app.use('/admin', adminRouter)
+app.post('/login', adminSignin)
+app.use('/admin', adminAuth, adminRouter)
 
 // Endpoint to check which chunks have been uploaded
 app.post("/upload/check", async (req, res) => {

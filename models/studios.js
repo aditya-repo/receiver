@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 
-const studioSchema = mongoose.Schema({
+const {Schema} = mongoose
+
+const studioSchema = new Schema({
     name: {
         type: String,
         required: [true, "Studio Name is required"],
@@ -39,13 +41,13 @@ const studioSchema = mongoose.Schema({
         type: Number,
         required: true,
         minlength: [10, "Conctact Number 1 should be 10 digits"],
-        minlength: [10, "Conctact Number 1 should be 10 digits"],
+        maxlength: [10, "Conctact Number 1 should be 10 digits"],
     },
     contact2: {
         type: Number,
         required: false,
         minlength: [10, "Conctact Number 2 should be 10 digits"],
-        minlength: [10, "Conctact Number 2 should be 10 digits"],
+        maxlength: [10, "Conctact Number 2 should be 10 digits"],
     },
     email: {
         type: String,
@@ -53,6 +55,6 @@ const studioSchema = mongoose.Schema({
     }
 })
 
-const Studio = mongoose.model(studioSchema, "Studios")
+const Studio = mongoose.model("Studios", studioSchema)
 
-export default Studio
+module.exports = Studio

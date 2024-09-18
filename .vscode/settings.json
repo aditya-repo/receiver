@@ -1,0 +1,9 @@
+{
+    "files.exclude": {
+        "package-lock.json": true,
+        ".gitignore": true,
+        "uploads": true,
+        "node_modules": true,
+        // "package.json": true
+    }
+}

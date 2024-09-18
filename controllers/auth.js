@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const Admin = require("../models/admin")
+const  Studio = require("../models/studios")
 require("dotenv").config()
 
 const ADMIN_KEY = process.env.ADMIN_KEY
@@ -9,7 +10,44 @@ const studioSignin = (req,res)=>{
     
 }
 
-const studioSignup = (req,res)=>{
+const studioSignup = async (req,res)=>{
+    
+  try {
+
+
+    console.log("Hello");
+    // return res.status(200).json(req.body)
+    
+    // Extract data from request body
+    let { name, userid, studiocode, password, description, location, contact1, contact2, email } = req.body.formData;
+
+
+    // Validate required fields
+    if (!name || !userid || !studiocode || !password || !contact1) {
+      return res.status(400).json({ message: 'Please provide all required fields' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new Studio instance
+    const newStudio = new Studio({
+      name, userid, studiocode, password: hashedPassword, description, location, contact1, contact2, email });
+    
+        // Save the studio to the database
+        await newStudio.save();
+        
+        return res.status(201).json({ message: "Studio created successfully", studio: newStudio });
+
+  } catch (error) {
+    // Handle any errors
+    console.error('Error saving studio data:', error);
+    res.status(500).json({
+      message: 'Internal server error',
+      error: error.message,
+    });
+  }
+    
     
 }
 
@@ -57,7 +95,9 @@ const adminSignup = async (req,res)=>{
 
 
 const adminSignin = async (req, res) => {
+    const startTime = Date.now()
     const { username, password } = req.body;
+    
 
     // Validate input
     if (!username || !password) {
@@ -66,7 +106,7 @@ const adminSignin = async (req, res) => {
 
     try {
         // Find the user by username
-        const user = await Admin.findOne({ username });
+        const user = await Admin.findOne({ username });        
 
         if (!user) {
             return res.status(401).json({ message: 'Invalid username or password' });
@@ -86,8 +126,11 @@ const adminSignin = async (req, res) => {
             { expiresIn: '1h' }
         );
 
+        console.log("Response Time : ",(Date.now() - startTime)/1000);
+        
+
         // Respond with success
-        res.json({
+        res.status(200).json({
             message: 'Signin successful',
             token,
         });

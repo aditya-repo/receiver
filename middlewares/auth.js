@@ -2,25 +2,21 @@ const jwt = require("jsonwebtoken")
 const TOKEN_KEY = '45465564'
 require("dotenv").config()
 
-const STUDIO_KEY = process.env.STUDIO_KEY
-const CLIENT_KEY = process.env.CLIENT_KEY
+const ADMIN_KEY = process.env.ADMIN_KEY
 
-const StudioAuth = (req, res, next)=>{
-    const token = req.header("Authorization")
-
-    if (!header) {
-        return res.status(401).json({"message": "No Token! Authorization denied"})
-    }
-
-    // Verify token
+const adminAuth = (req, res, next)=>{
+    const token = req.header('Authorization').replace('Bearer ', '');
+    if (!token) {
+        return res.status(403).json({ message: 'Access denied' });
+    }    
 
     try {
-        const decoded = jwt.verify(token, STUDIO_KEY)
-        res.user = decoded.user
+        const decoded = jwt.verify(token, ADMIN_KEY);
+        req.user = decoded; // Store decoded user data in request object
+        next(); // Proceed to the next middleware or route handler
     } catch (error) {
-        res.status(401).json({message: "Token is invalid"})
+        return res.status(401).json({ message: 'Invalid token' });
     }
-    next()
 }
 
 const ClientAuth = (req, res, next)=>{
@@ -38,4 +34,4 @@ const ClientAuth = (req, res, next)=>{
     next()
 }
 
-module.exports =  { StudioAuth, ClientAuth}
+module.exports =  { adminAuth, ClientAuth}
