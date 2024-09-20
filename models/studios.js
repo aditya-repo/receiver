@@ -49,9 +49,27 @@ const studioSchema = new Schema({
         minlength: [10, "Conctact Number 2 should be 10 digits"],
         maxlength: [10, "Conctact Number 2 should be 10 digits"],
     },
+    whatsapp: {
+        type: Number,
+        required: false,
+        minlength: [10, "Conctact Number 2 should be 10 digits"],
+        maxlength: [10, "Conctact Number 2 should be 10 digits"],
+    },
     email: {
         type: String,
         required: false
+    },
+    status: {
+        type: String,
+        required: false
+    },
+    manager: {
+        type: String,
+        required: false
+    },
+    isdeleted: {
+        type: Boolean,
+        default: false
     }
 })
 

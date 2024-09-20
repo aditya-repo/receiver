@@ -7,8 +7,9 @@ const databaseConnection = require("./models");
 require("dotenv").config()
 
 const adminRouter = require("./routes/admin");
-const { adminSignin } = require("./controllers/auth");
-const { adminAuth } = require("./middlewares/auth");
+const studioRouter = require("./routes/studio");
+const { adminSignin, studioSignin } = require("./controllers/auth");
+const { adminAuth, studioAuth } = require("./middlewares/auth");
 
 
 const DATABSE_URL = process.env.DATABASE
@@ -23,8 +24,10 @@ databaseConnection(DATABSE_URL)
 // Temporary storage for chunks
 const upload = multer({ dest: "uploads/temp" });
 
-app.post('/login', adminSignin)
+app.post('/admin-login', adminSignin)
+app.post('/login', studioSignin)
 app.use('/admin', adminAuth, adminRouter)
+app.use('/studio', studioAuth, studioRouter)
 
 // Endpoint to check which chunks have been uploaded
 app.post("/upload/check", async (req, res) => {

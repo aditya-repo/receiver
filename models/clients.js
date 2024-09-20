@@ -1,6 +1,7 @@
-const { Schema, default: mongoose } = require("mongoose")
+const mongoose = require('mongoose')
+const { Schema } = mongoose
 
-const clientSchema  = Schema({
+const clientSchema  = new Schema({
     clientId: {
         type:String,
         unique: [true, "The Client Id should be unique."],
@@ -44,9 +45,15 @@ const clientSchema  = Schema({
     status:{
         type: String,
         required: false
+    },
+    isdeleted: {
+        type: Boolean,
+        default: false
     }
+},{
+    timestamps: true
 })
 
-const Client = mongoose.model(clientSchema, "clients")
+const Client = mongoose.model( "clients", clientSchema)
 
 module.exports = Client
