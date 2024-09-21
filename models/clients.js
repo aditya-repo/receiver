@@ -15,6 +15,10 @@ const clientSchema  = new Schema({
         type: String, 
         required: false
     },
+    description: {
+        type: String, 
+        required: false
+    },
     clientname: {
         type: String,
         required: false,

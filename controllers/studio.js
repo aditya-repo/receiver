@@ -1,6 +1,7 @@
 const Client = require("../models/clients")
 const ProUser = require("../models/pro-user")
 const Wallet = require("../models/wallet")
+const createUniqueClientID = require("../services/uniqueclient")
 
 const fetchFolderList = (req, res)=>{
     const {studiocode, clientid} = req.body
@@ -21,37 +22,36 @@ const fetchSingleFile = (req, res)=>{
 }
 
 const allClient = async (req, res)=>{
+    const {studiocode} = req.params
 
-    const clientdata = await Client.find({isdeleted: false})
+    console.log("studiocode",studiocode);
+    
+    const clientdata = await Client.find({isdeleted: false, studiocode})
     res.status(200).json(clientdata)
 }
 
-const newClient = (req, res)=>{
+const newClient = async (req, res)=>{
 
     const {studiocode} = req.params
 
-    const { occassioname, occassiontype, clientname, occassiondate, address, contact, venue } = req.body
-
-    const clientData = {occassioname, occassiontype, clientname, occassiondate, address, contact, venue, studiocode, status: "0"};
-
-    const newClient = new Client(clientData)
-
+    
+    const newClientID = await createUniqueClientID()
+    const { projectName, address, bookingDate, clientName, contact, venue, type } = req.body.formData
+    console.log(req.body.formData);
+    
+    const clientData = {clientId: newClientID, occassionname : projectName, occassiontype: type, clientname: clientName, occassiondate: bookingDate, address, contact, venue, studiocode, status: "0"};
+    const newClient =  new Client(clientData)
     newClient.save().then((user)=>console.log('User saved', user)).catch((err)=>console.log("Save failed", err))
 
-    try {
-        newClient.save()
-        return res.status(200).json("New client created successfully")
-    } catch (error) {
-        return res.status(401).json("User creation failed :", error)
-    }
-    
 }
 
 const updateClient = async (req, res)=>{
 
     const {clientcode} = req.params
-    const {occassioname, occassiontype, clientname, occassiondate, address, contact, venue} = req.body
-    const clientdata = await Client.findOneAndUpdate({clientcode}, {occassioname, occassiontype, clientname, occassiondate, address, contact, venue }, { new: true } )
+    const {occassioname, occassiontype, clientName, occassiondate, address, contact, venue} = req.body
+
+    
+    const clientdata = await Client.findOneAndUpdate({clientcode}, {occassioname, occassiontype, clientname: clientName, occassiondate, address, contact, venue }, { new: true } )
 
     res.json({ message: 'Update successful', data: clientdata });
 }
@@ -70,7 +70,8 @@ const deletedClient = async (req, res)=>{
 const singleClient = async (req, res)=>{
 
     const { clientcode } = req.params
-    const clientdata = await Client.findOne({ clientcode })
+    const clientdata = await Client.findOne({ clientId: clientcode, isdeleted: false })
+    
     res.status(200).json(clientdata)
 
     
@@ -110,4 +111,4 @@ const deleteProUser = async (req, res)=>{
     res.status(200).json(response)
 }
 
-module.exports = { fetchFolderList, fetchFileList, fetchSingleFile, newClient, updateClient, allClient, singleClient, clientInfo, getDashboard, deleteClient, deletedClient, deleteProUser, getProUsers }
+module.exports = { fetchFolderList, fetchFileList, fetchSingleFile, newClient, updateClient, allClient, singleClient, getDashboard, deleteClient, deletedClient, deleteProUser, getProUsers }

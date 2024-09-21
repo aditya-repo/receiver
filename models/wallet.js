@@ -7,7 +7,7 @@ const walletScehma = new Schema({
         require: true,
         unique: true
     },
-    credit: {
+    amount: {
         type: Number,
     }
 }, {timestamps: true})

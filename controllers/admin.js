@@ -1,36 +1,35 @@
 const Client = require("../models/clients")
 const Studio = require("../models/studios")
+const Transaction = require("../models/transaction")
 const Wallet = require("../models/wallet")
 
-const allStudio = (req, res)=>{
+const allStudio = (req, res) => {
 
 }
 
-const getDashboardDetails = async (req, res)=>{
+const getDashboardDetails = async (req, res) => {
 
     const studios = await Studio.find({})
     const clients = await Client.find({})
 
     // console.log(result);
-    
+
     const totalStudioCount = studios.length
     const activeStudioCount = studios.filter(studio => (studio.status) === '1').length;
     const totalClientCount = clients.length
-    const activeClientCount = clients.filter(client=> (client.status) === '1').length
+    const activeClientCount = clients.filter(client => (client.status) === '1').length
 
-    const payload = { totalStudioCount, activeStudioCount, totalClientCount, activeClientCount}
-    
-    console.log(payload);
-    
-    
-    res.status(200).json({payload, studios})
+    const payload = { totalStudioCount, activeStudioCount, totalClientCount, activeClientCount }
+
+
+    res.status(200).json({ payload, studios })
 }
 
 
 const studioSignup = async (req, res) => {
 
     try {
-        console.log("Hello");
+        // console.log("Hello");
 
         // Extract data from request body
         let { name, userid, studiocode, password, description, location, contact1, contact2, email } = req.body.formData;
@@ -51,7 +50,7 @@ const studioSignup = async (req, res) => {
         // Save the studio to the database
         await newStudio.save();
 
-        const newWallet = new Wallet({studiocode, credit: 0})
+        const newWallet = new Wallet({ studiocode, credit: 0 })
         await newWallet.save()
 
         return res.status(201).json({ message: "Studio created successfully", studio: newStudio });
@@ -66,78 +65,112 @@ const studioSignup = async (req, res) => {
     }
 }
 
-const singleStudio = async (req, res)=>{
-    const {studiocode} = req.params
-    const studiodata = await Studio.findOne({studiocode})
-    console.log("studio", studiodata);
+const singleStudio = async (req, res) => {
+    const { studiocode } = req.params
+    const studiodata = await Studio.findOne({ studiocode })
+    // console.log("studio", studiodata);
     res.status(200).json(studiodata)
 }
 
-const updateStudio = async (req, res)=>{
+const updateStudio = async (req, res) => {
 
-    const {studiocode} = req.params
+    const { studiocode } = req.params
 
-    const {name, userid, manager, description, location, contact1, contact2, email, whatsapp} = req.body
-    
-    const studiodata = await Studio.findOneAndUpdate({studiocode}, { name, userid, manager, description, location, contact1, contact2, email, whatsapp }, { new: true } )
+    const { name, userid, manager, description, location, contact1, contact2, email, whatsapp } = req.body
 
-    res.json({ message: 'Update successful', data: studiodata });
-}
-
-
-const deleteStudio = async (req, res)=>{
-
-    const {studiocode} = req.params
-    
-    const studiodata = await Studio.findOneAndUpdate({studiocode}, { isdeleted: true }, { new: true } )
+    const studiodata = await Studio.findOneAndUpdate({ studiocode }, { name, userid, manager, description, location, contact1, contact2, email, whatsapp }, { new: true })
 
     res.json({ message: 'Update successful', data: studiodata });
 }
 
-const deletedStudio = async (req, res)=>{
-    const studiodata = await Studio.find({isdeleted: true})
+
+const deleteStudio = async (req, res) => {
+
+    const { studiocode } = req.params
+
+    const studiodata = await Studio.findOneAndUpdate({ studiocode }, { isdeleted: true }, { new: true })
+
+    res.json({ message: 'Update successful', data: studiodata });
+}
+
+const deletedStudio = async (req, res) => {
+    const studiodata = await Studio.find({ isdeleted: true })
     res.json(studiodata)
 }
 
-const singleClient = (req, res)=>{
+const singleClient = (req, res) => {
 
 }
 
-const updateClient = (req, res)=>{
+const updateClient = (req, res) => {
 
 }
 
 
-const pauseStudioService = (req, res)=>{
+const pauseStudioService = (req, res) => {
 
 }
 
-const updateCreditCount = (req, res)=>{
+const updateCreditCount = (req, res) => {
 
 }
 
-const cloudStatus = (req, res)=>{
+const cloudStatus = (req, res) => {
 
 }
 
-const serviceInfo = (req, res)=>{
+const serviceInfo = (req, res) => {
 
 }
 
-const photographerData = (req, res)=>{
+const photographerData = (req, res) => {
 
 }
 
-const clientData = (req, res)=>{
+const clientData = (req, res) => {
 
 }
 
-const userData = (req, res)=>{
+const userData = (req, res) => {
 
 }
 
-const serviceDurationExtension = (req, res)=>{
-    
+const serviceDurationExtension = (req, res) => {
+
+}
+
+const getSingleStudioCredit = async (req, res) => {
+    const { studiocode } = req.params
+    const response = await Wallet.findOne({ studiocode })
+
+    console.log(response);
+
+    res.status(200).json(response)
+}
+
+const updateSingleStudioCredit = async (req, res) => {
+    const { studiocode } = req.params
+    const { amount } = req.body.formData
+
+    const payload = {
+        to: studiocode,
+        amount,
+        from: 'admin',
+        type: 'credit',
+    }
+
+    console.log(req.params, req.body);
+
+
+
+    const response = await Wallet.findOneAndUpdate({ studiocode }, { amount }, { new: true })
+
+    // // Create and save the transaction entry
+    const transaction = new Transaction();
+    await transaction.save(payload);
+
+    res.status(200).json(response)
+    // res.status(200).json({message: "Hello"})
 }
 
 module.exports = {
@@ -146,5 +179,7 @@ module.exports = {
     updateStudio,
     studioSignup,
     deleteStudio,
-    deletedStudio
+    deletedStudio,
+    getSingleStudioCredit,
+    updateSingleStudioCredit
 }
