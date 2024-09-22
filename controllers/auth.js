@@ -37,7 +37,7 @@ const studioSignin = async (req, res) => {
 
         // Generate JWT token
         const token = jwt.sign(
-            { username: user.username },
+            { username: user.studiocode },
             STUDIO_KEY, // Replace with your actual secret key
             { expiresIn: '1h' }
         );

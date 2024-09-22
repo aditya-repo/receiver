@@ -10,7 +10,7 @@ const adminRouter = require("./routes/admin");
 const studioRouter = require("./routes/studio");
 const { adminSignin, studioSignin } = require("./controllers/auth");
 const { adminAuth, studioAuth } = require("./middlewares/auth");
-const { createWallettoStudio } = require("./controllers/testController");
+const { createWallettoStudio, serviceUpdateForPublicApi } = require("./controllers/testController");
 
 
 const DATABSE_URL = process.env.DATABASE
@@ -31,6 +31,7 @@ app.use('/admin', adminAuth, adminRouter)
 app.use('/studio', studioAuth, studioRouter)
 
 app.get('/create-wallet', createWallettoStudio)
+app.get('/public-test', serviceUpdateForPublicApi)
 
 
 // Endpoint to check which chunks have been uploaded

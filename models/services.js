@@ -1,36 +1,34 @@
 const { Schema, default: mongoose } = require("mongoose")
 
-const serviceSchema = Schema({
-    clientid: {
+const serviceSchema = new Schema({
+    clientId: {
         type: String,
         required: [true, "Client  Id should be required"],
     },
-    servicename: {
+    cloud: {
         type: String,
-        enum: ['invite', 'cloud', 'skinn'],
-        cloud: [
-            {
-                foldername: {
-                    type: String,
-                    required: [true, "Folder name is required"]
-                },
-                size: {
-                    type: Number,
-                    required: false
-                },
-                count: {
-                    type: Number,
-                    required: false
-                }
+        enum: ['silver', 'gold', 'platinum']
+    },
+
+    folder: [
+        {
+            foldername: {
+                type: String,
+                required: [true, "Folder name is required"]
+            },
+            size: {
+                type: Number,
+                required: false
+            },
+            count: {
+                type: Number,
+                required: false
             }
-        ],
-        process: {
-            type: String,
-            enum: ["compressed", "decompressed", "resized", "detected", "grouped"]
         }
-    }
-})
+    ],
 
-const service = mongoose.model(serviceSchema, "Services")
+}, {timeseries: true})
 
-export default service
+const Service = mongoose.model("Services", serviceSchema)
+
+module.exports = Service

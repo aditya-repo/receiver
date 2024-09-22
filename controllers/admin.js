@@ -9,8 +9,8 @@ const allStudio = (req, res) => {
 
 const getDashboardDetails = async (req, res) => {
 
-    const studios = await Studio.find({})
-    const clients = await Client.find({})
+    const studios = await Studio.find({}).sort({ createdAt: -1 })
+    const clients = await Client.find({}).sort({ createdAt: -1 })
 
     // console.log(result);
 
@@ -150,27 +150,47 @@ const getSingleStudioCredit = async (req, res) => {
 
 const updateSingleStudioCredit = async (req, res) => {
     const { studiocode } = req.params
-    const { amount } = req.body.formData
+    let { amount } = req.body
+
+    amount = Number(amount)
+    
+    const walletamount = await Wallet.findOne({studiocode})
 
     const payload = {
         to: studiocode,
-        amount,
+        walletamount: Number(walletamount.amount) + amount,
         from: 'admin',
         type: 'credit',
+        amount
     }
 
-    console.log(req.params, req.body);
+    if (amount === 0) {
+        return res.status(200).json(walletamount)
+    }
 
+    if (amount > 0) {
+        payload.type = 'credit' 
+    } 
 
+    if (amount < 0) {
+        payload.type = 'debit' 
+    }
 
-    const response = await Wallet.findOneAndUpdate({ studiocode }, { amount }, { new: true })
+    const response = await Wallet.findOneAndUpdate({ studiocode }, { amount: payload.walletamount }, { new: true })
 
-    // // Create and save the transaction entry
-    const transaction = new Transaction();
-    await transaction.save(payload);
+    console.log(payload);
+    const transaction = new Transaction(payload);
+    await transaction.save();
 
     res.status(200).json(response)
-    // res.status(200).json({message: "Hello"})
+}
+
+const transaction = async (req, res)=>{
+
+    const {studiocode} = req.params
+    const transaction = await Transaction.find({to: studiocode}).sort({ createdAt: -1 })
+    res.status(200).json(transaction)
+
 }
 
 module.exports = {
@@ -181,5 +201,6 @@ module.exports = {
     deleteStudio,
     deletedStudio,
     getSingleStudioCredit,
-    updateSingleStudioCredit
+    updateSingleStudioCredit,
+    transaction
 }

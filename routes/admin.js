@@ -1,5 +1,5 @@
 const express = require("express");
-const { studioSignup, getSingleStudioCredit, updateSingleStudioCredit } = require("../controllers/admin");
+const { studioSignup, getSingleStudioCredit, updateSingleStudioCredit, transaction } = require("../controllers/admin");
 const { getDashboardDetails, singleStudio, updateStudio } = require("../controllers/admin");
 const { singleClient, updateClient, deleteClient, deleteProUser, getProUsers, newClient, allClient } = require("../controllers/studio");
 const { createWallettoStudio } = require("../controllers/testController");
@@ -18,5 +18,6 @@ app.route('/prouser/:studio').get(getProUsers).delete(deleteProUser)
 app.route('/:studiocode/wallet').get(getSingleStudioCredit).post(updateSingleStudioCredit)
 
 app.get('/create-wallet', createWallettoStudio)
+app.get('/:studiocode/transaction', transaction)
 
 module.exports = app

@@ -5,7 +5,7 @@ const transactionSchema = new Schema({
     from: {
         type: String,
         enum: ['admin', 'studio'],
-        required: true
+        // required: true
     },
     type: {
         type: String,
@@ -20,6 +20,9 @@ const transactionSchema = new Schema({
     usertype: {
         type: String,
         enum: ['studio', 'client']
+    },
+    walletamount: {
+        type: Number
     }
 
 }, { timestamps: true })
