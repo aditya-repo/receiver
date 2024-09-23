@@ -35,7 +35,9 @@ const newClient = async (req, res)=>{
 
     const studiocode = req.user.username
 
-    // console.log(req.body);
+    console.log(req.body);
+
+    
 
     const newClientID = await createUniqueClientID()
     const { projectName, address, bookingDate, clientName, contact, venue, type, description } = req.body

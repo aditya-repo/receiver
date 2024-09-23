@@ -11,6 +11,7 @@ const studioRouter = require("./routes/studio");
 const { adminSignin, studioSignin } = require("./controllers/auth");
 const { adminAuth, studioAuth } = require("./middlewares/auth");
 const { createWallettoStudio, serviceUpdateForPublicApi } = require("./controllers/testController");
+const { validateLogin } = require("./middlewares/loginvalidator");
 
 
 const DATABSE_URL = process.env.DATABASE
@@ -25,7 +26,7 @@ databaseConnection(DATABSE_URL)
 // Temporary storage for chunks
 const upload = multer({ dest: "uploads/temp" });
 
-app.post('/admin-login', adminSignin)
+app.post('/admin-login', validateLogin, adminSignin)
 app.post('/login', studioSignin)
 app.use('/admin', adminAuth, adminRouter)
 app.use('/studio', studioAuth, studioRouter)
