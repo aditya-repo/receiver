@@ -57,6 +57,8 @@ app.post("/upload/check", async (req, res) => {
 
 // Endpoint to upload a chunk
 app.post("/upload", upload.single("chunk"), async (req, res) => {
+  console.log("hello");
+  
   const { fileName, chunkIndex } = req.body;
 
   const tempDir = path.join(__dirname, "uploads", "temp", fileName);

@@ -7,7 +7,8 @@ const serviceSchema = new Schema({
     },
     cloud: {
         type: String,
-        enum: ['silver', 'gold', 'platinum']
+        enum: ['silver', 'gold', 'platinum', 'none'],
+        default: 'none'
     },
 
     folder: [

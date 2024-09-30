@@ -37,12 +37,10 @@ const newClient = async (req, res)=>{
 
     console.log(req.body);
 
-    
-
     const newClientID = await createUniqueClientID()
-    const { projectName, address, bookingDate, clientName, contact, venue, type, description } = req.body
+    const { projectName, bookingDate, clientName, contact, venue, type, description } = req.body
     
-    const clientData = {clientId: newClientID, occassionname : projectName, occassiontype: type, clientname: clientName, occassiondate: bookingDate, address, contact, venue, studiocode, status: "0", description};
+    const clientData = {clientId: newClientID, occassionname : projectName, occassiontype: type, clientname: clientName, occassiondate: bookingDate, contact, venue, studiocode, status: "0", description};
     const newClient =  new Client(clientData)
     newClient.save().then((user)=>console.log('User saved', user)).catch((err)=>console.log("Save failed", err))
 
@@ -126,7 +124,9 @@ const getService = async (req, res)=>{
     
 
     const response = await Service.findOne({clientId: clientcode})
-    
+    console.log(response);
+
+
     res.status(200).json(response)
 }
 

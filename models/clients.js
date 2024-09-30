@@ -25,11 +25,6 @@ const clientSchema  = new Schema({
     },
     occassiondate: {
         type: Date,
-        Default: Date.now,
-        required: false
-    },
-    address: {
-        type: String,
         required: false
     },
     contact: {
