@@ -10,13 +10,16 @@ const serviceSchema = new Schema({
         enum: ['silver', 'gold', 'platinum', 'none'],
         default: 'none'
     },
-
+    studiocode: {
+        type: String
+    },
     folder: [
         {
             foldername: {
                 type: String,
                 required: [true, "Folder name is required"]
             },
+            locationname: {type: String},
             size: {
                 type: Number,
                 required: false
@@ -24,6 +27,13 @@ const serviceSchema = new Schema({
             count: {
                 type: Number,
                 required: false
+            },
+            status: {
+                type: String
+            },
+            uploadtime: {
+                type: Date,
+                default: Date.now, 
             }
         }
     ],

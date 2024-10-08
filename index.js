@@ -12,6 +12,7 @@ const { adminSignin, studioSignin } = require("./controllers/auth");
 const { adminAuth, studioAuth } = require("./middlewares/auth");
 const { createWallettoStudio, serviceUpdateForPublicApi } = require("./controllers/testController");
 const { validateLogin } = require("./middlewares/loginvalidator");
+const { newFolder } = require("./controllers/service");
 
 
 const DATABSE_URL = process.env.DATABASE
@@ -55,9 +56,12 @@ app.post("/upload/check", async (req, res) => {
   res.status(200).json({ uploadedChunks });
 });
 
+
+app.post("/upload/folder", newFolder)
+
+
 // Endpoint to upload a chunk
 app.post("/upload", upload.single("chunk"), async (req, res) => {
-  console.log("hello");
   
   const { fileName, chunkIndex } = req.body;
 

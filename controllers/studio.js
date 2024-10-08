@@ -158,4 +158,5 @@ const getPublic = async(req, res)=>{
 }
 
 
+
 module.exports = { fetchFolderList, fetchFileList, fetchSingleFile, newClient, updateClient, allClient, singleClient, getDashboard, deleteClient, deletedClient, deleteProUser, getProUsers, getService, updateService, getPublic }

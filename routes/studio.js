@@ -1,5 +1,6 @@
 const express = require("express")
 const { getDashboard, allClient, updateClient, singleClient, deletedClient, deleteClient, getProUsers, deleteProUser, newClient, getService, updateService, getPublic } = require("../controllers/studio")
+const { fetchUpload } = require("../controllers/service")
 const app = express()
 
 app.route('/').get(getDashboard)
@@ -9,6 +10,7 @@ app.route('/client/:clientcode').get(singleClient).post(updateClient).delete(del
 app.route('/prouser/:studio').get(getProUsers).delete(deleteProUser)
 app.route('/service/:clientcode').get(getService).post(updateService)
 app.route('/public/:clientcode').get(getPublic)
+app.route('/upload-data/:clientcode').get(fetchUpload)
 
 
 module.exports = app
