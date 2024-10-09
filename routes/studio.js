@@ -18,6 +18,7 @@ const {
   deleteFolder,
   finalaction,
 } = require("../controllers/service");
+const cpuMiddleware = require("../services/cpuusage");
 const app = express();
 
 app.route("/").get(getDashboard);
@@ -31,6 +32,9 @@ app
 app.route("/prouser/:studio").get(getProUsers).delete(deleteProUser);
 app.route("/service/:clientcode").get(getService).post(updateService);
 app.route("/public/:clientcode").get(getPublic);
+
+// app.use(cpuMiddleware)
+
 app.route("/upload-data/:clientcode").get(fetchUpload).post(deleteFolder);
 app.route("/decompress/:clientcode").post(finalaction);
 

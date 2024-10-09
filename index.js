@@ -40,7 +40,6 @@ app.get("/public-test", serviceUpdateForPublicApi);
 // Endpoint to check which chunks have been uploaded
 app.post("/upload/check", async (req, res) => {
   const { fileName, totalChunks, clientid } = req.body;
-  console.log(req.body);
 
   const tempDir = path.join(__dirname, "uploads", "temp", clientid, fileName);
 
@@ -64,8 +63,6 @@ app.post("/upload/folder", newFolder);
 // Endpoint to upload a chunk
 app.post("/upload", upload.single("chunk"), async (req, res) => {
   const { fileName, chunkIndex, clientid } = req.body;
-
-  console.log(req.body);
 
   const tempDir = path.join(__dirname, "uploads", "temp", clientid, fileName);
   await fs.ensureDir(tempDir); // Ensure the temp directory exists for storing chunks

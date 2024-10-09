@@ -1,17 +1,20 @@
 const Service = require("../models/services");
+const path = require("path");
+
 const bundling = require("../services/bundling");
+const processCompressedFiles = require("../services/optimizer");
 
-const newInvitationRequest = (req, res) => {};
+const newInvitationRequest = (req, res) => { };
 
-const updateInvitationRequest = (req, res) => {};
+const updateInvitationRequest = (req, res) => { };
 
-const deleteInvitationRequest = (req, res) => {};
+const deleteInvitationRequest = (req, res) => { };
 
-const createCloudService = (req, res) => {};
+const createCloudService = (req, res) => { };
 
-const updateCloudServiceRequest = (req, res) => {};
+const updateCloudServiceRequest = (req, res) => { };
 
-const deleteCloudServiceRequest = (req, res) => {};
+const deleteCloudServiceRequest = (req, res) => { };
 
 const newFolder = async (req, res) => {
   const { clientid, folderName, filename, size } = req.body;
@@ -69,7 +72,7 @@ const deleteFolder = async (req, res) => {
   }
 };
 
-const completeUpload = (req, res) => {};
+const completeUpload = (req, res) => { };
 
 const fetchUpload = async (req, res) => {
   const { clientcode } = req.params;
@@ -82,10 +85,29 @@ const fetchUpload = async (req, res) => {
   }
 };
 
-const finalaction = (req, res) => {
+const finalaction = async (req, res) => {
   const { clientcode } = req.params;
 
-  bundling(clientcode);
+  const inputPath = path.join(__dirname, "..", "uploads", "temp", clientcode);
+  const assembledPath = path.join(__dirname, "..", "assembled", clientcode);
+  const optimizedFilePath = path.join(__dirname, "..", "optimized", clientcode);
+
+  try {
+    const data = await bundling(inputPath, assembledPath); // Wait for bundling to complete
+    console.log("Bundling completed.");
+    console.log("Mapped data:", data);
+
+    // Proceed to process compressed files only after bundling is completed
+    await processCompressedFiles(assembledPath, optimizedFilePath); // Wait for processing to complete
+    console.log("Processing completed.");
+    
+    // Send a success response if needed
+    res.status(200).send({ message: "All actions completed successfully." });
+  } catch (err) {
+    console.error("Error:", err);
+    // Handle the error and send a response
+    res.status(500).send({ error: "An error occurred during processing." });
+  }
 };
 
 module.exports = {
