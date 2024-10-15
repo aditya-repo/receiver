@@ -26,10 +26,14 @@ async function processCompressedFiles(compressedFolder, outputFolder) {
     await handleCompressedFile(filePath, outputFolder);
   }
 
+  const countobject = getFolderFileCounts(outputFolder)
+
   const endTime = performance.now();
   console.log(
     `All files processed successfully! Time taken: ${(endTime - startTime) / 1000} seconds`
   );
+
+  return countobject
 }
 
 async function handleCompressedFile(filePath, outputFolder) {
@@ -179,6 +183,27 @@ function renameFiles(baseFolder, folderName) {
     const newFilePath = path.join(baseFolder, newFileName);
     fs.renameSync(filePath, newFilePath);
   });
+}
+
+// Get the count and create ajavascript for total file
+function getFolderFileCounts(mainFolderPath) {
+  const folderCounts = {};
+
+  // Read the contents of the main folder
+  const folders = fs.readdirSync(mainFolderPath, { withFileTypes: true });
+
+  // Loop through each item in the main folder
+  folders.forEach((folder) => {
+      // Check if the item is a directory
+      if (folder.isDirectory()) {
+          const folderPath = path.join(mainFolderPath, folder.name);
+          // Count the files in the subfolder
+          const files = fs.readdirSync(folderPath);
+          folderCounts[folder.name] = files.length; // Store folder name and file count
+      }
+  });
+
+  return folderCounts;
 }
 
 

@@ -79,6 +79,10 @@ const fetchUpload = async (req, res) => {
 
   try {
     const service = await Service.findOne({ clientId: clientcode });
+
+    console.log(service);
+
+
     res.json(service);
   } catch (error) {
     res.json("message", error);
@@ -95,12 +99,37 @@ const finalaction = async (req, res) => {
   try {
     const data = await bundling(inputPath, assembledPath); // Wait for bundling to complete
     console.log("Bundling completed.");
-    console.log("Mapped data:", data);
+
+    const folderdata = await Service.findOne({ clientId: clientcode }).lean();
+
+    // Update the folder array with the new indexname
+    folderdata.folder.forEach(folder => {
+      const locationName = folder.locationname;
+      folder.indexname = data[locationName] !== undefined ? data[locationName] : folder.indexname;
+    });
+
+    // Update the client document with the modified folder array
+    await Service.updateOne({ clientId: clientcode }, { folder: folderdata.folder });
 
     // Proceed to process compressed files only after bundling is completed
-    await processCompressedFiles(assembledPath, optimizedFilePath); // Wait for processing to complete
+    const countData = await processCompressedFiles(assembledPath, optimizedFilePath);
+
+
+
+    // Assuming countData is in the form of { '1': 20, '2': 256, ... } where '1', '2', etc. are indexnames
+    folderdata.folder.forEach(folder => {
+      const indexName = folder.indexname; // Use indexname to match the countData
+
+      // Check if countData has a count for the current indexname and update the count
+      folder.count = countData[indexName] !== undefined ? countData[indexName] : folder.count;
+    });
+
+    // Update the client document with the modified folder array
+    await Service.updateOne({ clientId: clientcode }, { folder: folderdata.folder });
+
+
     console.log("Processing completed.");
-    
+
     // Send a success response if needed
     res.status(200).send({ message: "All actions completed successfully." });
   } catch (err) {

@@ -55,28 +55,33 @@ const assembleChunks = async (folderPath, finalFilePath) => {
   }
 };
 
-// Function to rename all files in a folder with a counter
 const renameFilesInFolder = async (folderPath) => {
-  let  map = {} // Initialize map as an object
+  let map = {}; // Initialize map as an object
   try {
     const files = await fs.promises.readdir(folderPath); // Use async readdir
+
+    // First, create the mapping with old and new names
     for (let i = 0; i < files.length; i++) {
-      const oldFilePath = path.join(folderPath, files[i]);
-      const newFileName = `${i + 1}${path.extname(files[i])}`; // New file name with counter
+      const oldFileName = files[i];
+      const newFileName = `${i + 1}${path.extname(oldFileName)}`; // New file name with counter
+      
+      // Store both old and new file names in the map
+      map[oldFileName] = newFileName; // Direct assignment of new file name
+    }
+
+    // Then rename the files based on the map
+    for (const [oldFileName, newFileName] of Object.entries(map)) {
+      const oldFilePath = path.join(folderPath, oldFileName);
       const newFilePath = path.join(folderPath, newFileName);
       await fs.promises.rename(oldFilePath, newFilePath); // Rename the file
-
-      console.log(files[i]);
-
-      // Correctly assign old file name to new file name in map
-      map[files[i]] = newFileName;
     }
-    // console.log(`Renamed all files in folder: ${folderPath}`);
   } catch (err) {
     console.error(`Error renaming files in folder: ${folderPath}`, err);
   }
+
   return map; // Return the mapping
 };
+
 
 // Main function to loop through all folders, assemble chunks, and remove old files
 const assembleAllFolders = async (mainFolderPath, newMainFolderPath) => {
@@ -109,9 +114,34 @@ const assembleAllFolders = async (mainFolderPath, newMainFolderPath) => {
   return value
 };
 
+// Get the old folder and new folder name object
+const getFoldersWithIndex = async (mainFolder) => {
+  try {
+    // Read all entries in the main folder
+    const entries = await fs.promises.readdir(mainFolder, { withFileTypes: true });
+    
+    // Use reduce to create the folder mapping object
+    const folderMap = entries.reduce((acc, entry, index) => {
+      if (entry.isDirectory()) {
+        acc[entry.name] = index + 1; // Map folder name to its index (1-based)
+      }
+      return acc; // Return accumulator
+    }, {});
+
+    return folderMap; // Return the folder mapping object
+  } catch (err) {
+    console.error(`Error reading folder: ${mainFolder}`, err);
+    return {}; // Return an empty object on error
+  }
+};
+
 // Example usage
 const bundling = async (mainFolderPath, newMainFolderPath) => {
-  return await assembleAllFolders(mainFolderPath, newMainFolderPath);
+  const folders = await getFoldersWithIndex(mainFolderPath);
+  await assembleAllFolders(mainFolderPath, newMainFolderPath);
+  console.log(folders);
+  
+  return folders
 };
 
 module.exports = bundling;

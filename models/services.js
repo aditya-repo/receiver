@@ -20,6 +20,7 @@ const serviceSchema = new Schema({
                 required: [true, "Folder name is required"]
             },
             locationname: {type: String},
+            indexname: {type: String},
             size: {
                 type: Number,
                 required: false
