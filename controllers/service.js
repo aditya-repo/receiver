@@ -1,8 +1,12 @@
 const Service = require("../models/services");
 const path = require("path");
+require("dotenv").config()
+
+const VPS2 = process.env.VPS2
 
 const bundling = require("../services/bundling");
 const processCompressedFiles = require("../services/optimizer");
+const rsyncTransfer = require("../services/rsync");
 
 const newInvitationRequest = (req, res) => { };
 
@@ -95,6 +99,8 @@ const finalaction = async (req, res) => {
   const inputPath = path.join(__dirname, "..", "uploads", "temp", clientcode);
   const assembledPath = path.join(__dirname, "..", "assembled", clientcode);
   const optimizedFilePath = path.join(__dirname, "..", "optimized", clientcode);
+  const finalPath = path.join(__dirname, "..", "final", clientcode);
+  const vps2path = VPS2
 
   try {
     const data = await bundling(inputPath, assembledPath); // Wait for bundling to complete
@@ -109,12 +115,11 @@ const finalaction = async (req, res) => {
     });
 
     // Update the client document with the modified folder array
-    await Service.updateOne({ clientId: clientcode }, { folder: folderdata.folder });
+    await Service.updateOne({ clientId: clientcode }, { $set: { folder: folderdata.folder, optimise: 'in-progress' } });
+
 
     // Proceed to process compressed files only after bundling is completed
-    const countData = await processCompressedFiles(assembledPath, optimizedFilePath);
-
-
+    const countData = await processCompressedFiles(assembledPath, optimizedFilePath, finalPath);
 
     // Assuming countData is in the form of { '1': 20, '2': 256, ... } where '1', '2', etc. are indexnames
     folderdata.folder.forEach(folder => {
@@ -124,11 +129,12 @@ const finalaction = async (req, res) => {
       folder.count = countData[indexName] !== undefined ? countData[indexName] : folder.count;
     });
 
-    // Update the client document with the modified folder array
-    await Service.updateOne({ clientId: clientcode }, { folder: folderdata.folder });
+    await Service.updateOne(
+      { clientId: clientcode }, 
+      { $set: { folder: folderdata.folder, transfer: 'in-progress', optimise: 'completed' } }
+    );
 
-
-    console.log("Processing completed.");
+    rsyncTransfer(finalPath, vps2path, clientcode); // Initiate transfer and continue
 
     // Send a success response if needed
     res.status(200).send({ message: "All actions completed successfully." });

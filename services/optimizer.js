@@ -7,12 +7,14 @@ const seven = require("node-7z");
 const rimraf = require("rimraf");
 const { performance } = require("perf_hooks");
 
+const archiver = require('archiver');
+
 /**
  * Decompress files from the input folder to the output folder while maintaining the structure.
  * @param {string} compressedFolder - Path to the input folder containing compressed files.
  * @param {string} outputFolder - Path to the output folder where decompressed files will be stored.
  */
-async function processCompressedFiles(compressedFolder, outputFolder) {
+async function processCompressedFiles(compressedFolder, outputFolder, finalPath) {
   const startTime = performance.now();
   
   // Ensure output main folder exists
@@ -28,11 +30,13 @@ async function processCompressedFiles(compressedFolder, outputFolder) {
 
   const countobject = getFolderFileCounts(outputFolder)
 
+
+  await zipFolder(outputFolder, finalPath);
+
   const endTime = performance.now();
   console.log(
     `All files processed successfully! Time taken: ${(endTime - startTime) / 1000} seconds`
   );
-
   return countobject
 }
 
@@ -206,5 +210,26 @@ function getFolderFileCounts(mainFolderPath) {
   return folderCounts;
 }
 
+
+
+function zipFolder(inputFolder, outputZipFile) {
+  return new Promise((resolve, reject) => {
+    const output = fs.createWriteStream(outputZipFile);
+    const archive = archiver('zip', { zlib: { level: 9 } }); // Maximum compression
+
+    output.on('close', () => {
+      console.log(`Zipped ${archive.pointer()} total bytes. Zipping completed successfully.`);
+      resolve();
+    });
+
+    archive.on('error', (err) => {
+      reject(err);
+    });
+
+    archive.pipe(output);
+    archive.directory(inputFolder, false);
+    archive.finalize();
+  });
+}
 
 module.exports = processCompressedFiles;

@@ -5,6 +5,6 @@
         // "uploads": true,
         "node_modules": true,
         // "package.json": true,
-        ".env": true
+        // ".env": true
     }
 }

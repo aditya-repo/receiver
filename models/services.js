@@ -19,8 +19,8 @@ const serviceSchema = new Schema({
                 type: String,
                 required: [true, "Folder name is required"]
             },
-            locationname: {type: String},
-            indexname: {type: String},
+            locationname: { type: String },
+            indexname: { type: String },
             size: {
                 type: Number,
                 required: false
@@ -34,12 +34,18 @@ const serviceSchema = new Schema({
             },
             uploadtime: {
                 type: Date,
-                default: Date.now, 
+                default: Date.now,
             }
-        }
+        },
     ],
+    transfer: {
+        type: String
+    },
+    optimise: {
+        type: String
+    },
 
-}, {timeseries: true})
+}, { timeseries: true })
 
 const Service = mongoose.model("Services", serviceSchema)
 
