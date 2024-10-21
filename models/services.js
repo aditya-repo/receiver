@@ -38,12 +38,32 @@ const serviceSchema = new Schema({
             }
         },
     ],
-    transfer: {
-        type: String
-    },
     optimise: {
         type: String
     },
+    transfer: {
+        type: String
+    },
+    compression: {
+        type: String
+    },
+    status: {
+        type: String,
+        default: "inactive",
+        enum: ['inactive', 'queued', 'processing', 'completed']
+    },
+    queuedtime: {
+        type: Date
+    },
+    totalfile: {
+        type: String
+    },
+    processedfile:{
+        type: String
+    },
+    cdn:{
+        type:String
+    }
 
 }, { timeseries: true })
 

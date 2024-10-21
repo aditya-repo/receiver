@@ -16,7 +16,7 @@ const archiver = require('archiver');
  */
 async function processCompressedFiles(compressedFolder, outputFolder, finalPath) {
   const startTime = performance.now();
-  
+
   // Ensure output main folder exists
   if (!fs.existsSync(outputFolder)) {
     fs.mkdirSync(outputFolder, { recursive: true });
@@ -198,18 +198,17 @@ function getFolderFileCounts(mainFolderPath) {
 
   // Loop through each item in the main folder
   folders.forEach((folder) => {
-      // Check if the item is a directory
-      if (folder.isDirectory()) {
-          const folderPath = path.join(mainFolderPath, folder.name);
-          // Count the files in the subfolder
-          const files = fs.readdirSync(folderPath);
-          folderCounts[folder.name] = files.length; // Store folder name and file count
-      }
+    // Check if the item is a directory
+    if (folder.isDirectory()) {
+      const folderPath = path.join(mainFolderPath, folder.name);
+      // Count the files in the subfolder
+      const files = fs.readdirSync(folderPath);
+      folderCounts[folder.name] = files.length; // Store folder name and file count
+    }
   });
 
   return folderCounts;
 }
-
 
 
 function zipFolder(inputFolder, outputZipFile) {
@@ -219,7 +218,15 @@ function zipFolder(inputFolder, outputZipFile) {
 
     output.on('close', () => {
       console.log(`Zipped ${archive.pointer()} total bytes. Zipping completed successfully.`);
-      resolve();
+
+      // Remove the input directory after zipping is completed
+      fs.rm(inputFolder, { recursive: true, force: true }, (err) => {
+        if (err) {
+          return reject(`Failed to delete folder: ${err.message}`);
+        }
+        console.log(`${inputFolder} directory deleted successfully.`);
+        resolve();
+      });
     });
 
     archive.on('error', (err) => {

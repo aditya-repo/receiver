@@ -134,7 +134,7 @@ const finalaction = async (req, res) => {
       { $set: { folder: folderdata.folder, transfer: 'in-progress', optimise: 'completed' } }
     );
 
-    rsyncTransfer(finalPath, vps2path, clientcode); // Initiate transfer and continue
+    // rsyncTransfer(finalPath, vps2path, clientcode); // Initiate transfer and continue
 
     // Send a success response if needed
     res.status(200).send({ message: "All actions completed successfully." });
