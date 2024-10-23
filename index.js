@@ -8,6 +8,7 @@ require("dotenv").config();
 
 const adminRouter = require("./routes/admin");
 const studioRouter = require("./routes/studio");
+const cronjobRouter = require("./routes/cronjob")
 const { adminSignin, studioSignin } = require("./controllers/auth");
 const { adminAuth, studioAuth } = require("./middlewares/auth");
 const {
@@ -33,6 +34,7 @@ app.post("/admin-login", validateLogin, adminSignin);
 app.post("/login", studioSignin);
 app.use("/admin", adminAuth, adminRouter);
 app.use("/studio", studioAuth, studioRouter);
+app.use("/manual", cronjobRouter)
 
 app.get("/create-wallet", createWallettoStudio);
 app.get("/public-test", serviceUpdateForPublicApi);

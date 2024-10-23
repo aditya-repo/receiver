@@ -177,7 +177,7 @@ const getService = async (req, res) => {
 
 const updateService = async (req, res) => {
   const { clientcode } = req.params;
-  const { packagetype } = req.body;
+  const { packagetype, maxupload } = req.body;
 
   let response = await Service.findOne({ clientId: clientcode });
 
@@ -186,7 +186,7 @@ const updateService = async (req, res) => {
   if (response == null) {
     const newService = new Service({
       clientId: clientcode,
-      cloud: packagetype,
+      cloudpackage: packagetype, maxupload
     });
     const response = newService.save();
     return res.status(200).json(response);
@@ -194,7 +194,7 @@ const updateService = async (req, res) => {
 
   response = await Service.findOneAndUpdate(
     { clientId: clientcode },
-    { cloud: packagetype },
+    { cloudpackage: packagetype, maxupload },
     { new: true }
   );
   res.json(response).status(200);

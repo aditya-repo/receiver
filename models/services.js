@@ -5,10 +5,13 @@ const serviceSchema = new Schema({
         type: String,
         required: [true, "Client  Id should be required"],
     },
-    cloud: {
+    cloudpackage: {
         type: String,
         enum: ['silver', 'gold', 'platinum', 'none'],
         default: 'none'
+    },
+    maxupload: {
+        type: Number
     },
     studiocode: {
         type: String
@@ -38,21 +41,12 @@ const serviceSchema = new Schema({
             }
         },
     ],
-    optimise: {
-        type: String
-    },
-    transfer: {
-        type: String
-    },
-    compression: {
-        type: String
-    },
     status: {
         type: String,
         default: "inactive",
-        enum: ['inactive', 'queued', 'processing', 'completed']
+        enum: ['inactive', 'optimizing', 'queued', 'processing', 'cdn-queued', 'cdn-transfering', 'completed']
     },
-    queuedtime: {
+    time: {
         type: Date
     },
     totalfile: {
@@ -60,12 +54,9 @@ const serviceSchema = new Schema({
     },
     processedfile:{
         type: String
-    },
-    cdn:{
-        type:String
     }
 
-}, { timeseries: true })
+}, { timestamp : true })
 
 const Service = mongoose.model("Services", serviceSchema)
 

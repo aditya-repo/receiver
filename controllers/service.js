@@ -115,7 +115,7 @@ const finalaction = async (req, res) => {
     });
 
     // Update the client document with the modified folder array
-    await Service.updateOne({ clientId: clientcode }, { $set: { folder: folderdata.folder, optimise: 'in-progress' } });
+    await Service.updateOne({ clientId: clientcode }, { $set: { folder: folderdata.folder, status: 'optimizing' } });
 
 
     // Proceed to process compressed files only after bundling is completed
@@ -129,9 +129,11 @@ const finalaction = async (req, res) => {
       folder.count = countData[indexName] !== undefined ? countData[indexName] : folder.count;
     });
 
+    const queuedtime = new Date()
+
     await Service.updateOne(
       { clientId: clientcode }, 
-      { $set: { folder: folderdata.folder, transfer: 'in-progress', optimise: 'completed' } }
+      { $set: { folder: folderdata.folder, status: 'queued', queuedtime } }
     );
 
     // rsyncTransfer(finalPath, vps2path, clientcode); // Initiate transfer and continue

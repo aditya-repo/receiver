@@ -31,7 +31,7 @@ async function processCompressedFiles(compressedFolder, outputFolder, finalPath)
   const countobject = getFolderFileCounts(outputFolder)
 
 
-  await zipFolder(outputFolder, finalPath);
+  // await zipFolder(outputFolder, finalPath);
 
   const endTime = performance.now();
   console.log(
@@ -46,7 +46,7 @@ async function handleCompressedFile(filePath, outputFolder) {
 
   try {
     await decompressFile(filePath, tempOutputFolder);
-    fs.unlinkSync(filePath); // Remove compressed file after decompression
+    fs.unlinkSync(filePath);
     mergeFolders(tempOutputFolder);
     renameFiles(tempOutputFolder, folderName);
   } catch (err) {
@@ -167,27 +167,26 @@ function renameFiles(baseFolder, folderName) {
 
   const files = fs.readdirSync(baseFolder);
   let imgCounter = 1;
-  let vidCounter = 1;
 
   files.forEach((file) => {
     const filePath = path.join(baseFolder, file);
     const ext = path.extname(file).toLowerCase();
     let newFileName;
 
+    // Keep only image files (jpg, jpeg, png, gif)
     if ([".jpg", ".jpeg", ".png", ".gif"].includes(ext)) {
       newFileName = `IMG_${folderName}_${imgCounter.toString().padStart(4, "0")}${ext}`;
       imgCounter++;
-    } else if ([".mp4", ".avi", ".mov", ".mkv"].includes(ext)) {
-      newFileName = `VID_${folderName}_${vidCounter.toString().padStart(3, "0")}${ext}`;
-      vidCounter++;
+      const newFilePath = path.join(baseFolder, newFileName);
+      fs.renameSync(filePath, newFilePath);
     } else {
-      return; // Skip non-image/video files
+      // Remove all other files, including videos
+      console.log(`Deleting non-image file: ${file}`);
+      fs.unlinkSync(filePath);
     }
-
-    const newFilePath = path.join(baseFolder, newFileName);
-    fs.renameSync(filePath, newFilePath);
   });
 }
+
 
 // Get the count and create ajavascript for total file
 function getFolderFileCounts(mainFolderPath) {
