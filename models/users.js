@@ -6,6 +6,9 @@ const userSchema = new Schema({
         type: String,
         unique: [true, "Username should be unique"]
     },
+    profileurl:{
+        type: String
+    },
     name: {
         type: String
     },
@@ -22,7 +25,17 @@ const userSchema = new Schema({
     },
     gender: {
         type: String
-    }
+    },
+    followers: {
+      type: Map,
+      of: Boolean, // Keys are user IDs, values are true/false
+      default: {},
+    },
+    following: {
+      type: Map,
+      of: Boolean, // Keys are user IDs, values are true/false
+      default: {},
+    },
 }, { timestamps: true })
 
 const User = mongoose.model( "users",userSchema)
