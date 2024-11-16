@@ -253,10 +253,10 @@ const verifyOTP = async (req, res)=>{
         if (user) {
             // Generate JWT token
             const token = jwt.sign({ id: user._id }, USER_JWT_KEY, { expiresIn: '1h' });
-            return res.status(200).json({ message: 'Login successful', token });
+            return resizeBy.json({ message: 'success', token });
         } else {
             // Redirect to new-user page
-            return res.status(302).json({ redirect: '/new-user', phone });
+            return res.json({ message: 'no-user', phone });
         }
     } catch (error) {
         console.error('Error verifying OTP:', error);
