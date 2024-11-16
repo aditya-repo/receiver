@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 const { Schema } = require("mongoose")
 
-const userSchema = Schema({
+const userSchema = new Schema({
     username: {
         type: String,
         unique: [true, "Username should be unique"]
@@ -26,6 +26,5 @@ const userSchema = Schema({
 }, { timestamps: true })
 
 const User = mongoose.model( "users",userSchema)
-
 
 module.exports = User;

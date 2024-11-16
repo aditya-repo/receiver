@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken")
 const Admin = require("../models/admin")
 const Studio = require("../models/studios")
 const { validationResult } = require("express-validator");
-const { default: User } = require("../models/users");
+const User = require("../models/users");
 require("dotenv").config()
 
 const ADMIN_KEY = process.env.ADMIN_KEY
