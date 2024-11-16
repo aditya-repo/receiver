@@ -1,12 +1,21 @@
 const bcrypt = require("bcryptjs")
+const axios = require('axios');
 const jwt = require("jsonwebtoken")
 const Admin = require("../models/admin")
 const Studio = require("../models/studios")
-const { validationResult } = require("express-validator")
+const { validationResult } = require("express-validator");
+const { default: User } = require("../models/users");
 require("dotenv").config()
 
 const ADMIN_KEY = process.env.ADMIN_KEY
 const STUDIO_KEY = process.env.STUDIO_KEY
+const USER_JWT_KEY = process.env.USER_JWT_KEY
+const MESSAGE_KEY = process.env.MESSAGE_TOKEN
+const OTP_URL = process.env.OTP_URL
+
+
+// In-memory array to store phone-OTP pairs
+let otpStorage = [];
 
 const studioSignin = async (req, res) => {
 
@@ -73,13 +82,6 @@ const editStudio = async (req, res) => {
     }
 }
 
-const userSignin = (req, res) => {
-
-}
-
-const userSignup = (req, res) => {
-
-}
 
 const adminSignup = async (req, res) => {
     const { username, password } = req.body;
@@ -168,6 +170,192 @@ const studioLogout = (req, res) => {
 
 }
 
+
+const sendOTP =  async (req, res) => {
+    const { phone } = req.body;
+
+    // Validate phone number
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phone)) {
+        return res.status(400).json({ error: 'Invalid phone number. Please provide a 10-digit number.' });
+    }
+
+    // Generate a 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000);
+
+    
+    try {
+        // Payload structure
+        const payload = {
+            payload: {
+                service: ["message"],
+                user: {
+                    orderid: "TM900573", // Static order ID for now
+                    otp,                // Generated OTP
+                    number: phone,      // Phone number
+                    url: "https://photographercompany.com/"
+                },
+                sender: {
+                    template: "OTP"
+                }
+            }
+        };
+
+        // API configuration
+        const apiUrl = OTP_URL; // Replace with actual API URL
+        const headers = {
+            Authorization: MESSAGE_KEY, // Replace with your actual Authorization key
+            'Content-Type': 'application/json',
+        };
+
+        // Send OTP using Axios
+        const response = await axios.post(apiUrl, payload, { headers });
+
+        if (response.status === 200) {
+            // Store phone and OTP in the array
+            otpStorage.push({ phone, otp });
+            console.log('Current OTP Storage:', otpStorage); // Debugging
+            return res.status(200).json({ message: 'OTP sent successfully' }); // Do not return OTP in production
+        }
+
+        return res.status(500).json({ error: 'Failed to send OTP' });
+    } catch (error) {
+        console.error('Error sending OTP:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+const verifyOTP = async (req, res)=>{
+
+    const { phone, otp } = req.body;
+
+    // Validate inputs
+    if (!phone || !otp) {
+        return res.status(400).json({ error: 'Phone number and OTP are required.' });
+    }
+
+    // Find and verify OTP in the array
+    const otpRecordIndex = otpStorage.findIndex(record => record.phone === phone && record.otp === parseInt(otp));
+    if (otpRecordIndex === -1) {
+        return res.status(400).json({ error: 'Invalid OTP or phone number' });
+    }
+
+    // Remove the OTP record from the array
+    otpStorage.splice(otpRecordIndex, 1);
+    console.log('Updated OTP Storage:', otpStorage); // Debugging
+
+    // return res.json({message:"OTP Verified"})
+
+    try {
+        // Check if the phone exists in the database
+        const user = await User.findOne({ phone });
+
+        if (user) {
+            // Generate JWT token
+            const token = jwt.sign({ id: user._id }, USER_JWT_KEY, { expiresIn: '1h' });
+            return res.status(200).json({ message: 'Login successful', token });
+        } else {
+            // Redirect to new-user page
+            return res.status(302).json({ redirect: '/new-user', phone });
+        }
+    } catch (error) {
+        console.error('Error verifying OTP:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+const registerUser = async (req, res)=>{
+
+    const { phone, name, age, gender, username } = req.body;
+
+    // Validate inputs
+    if (!phone || !name || !age || !gender || !username) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    // Check if the phone number already exists
+    try {
+        const existingUser = await User.findOne({ phone });
+        if (existingUser) {
+            return res.status(400).json({ error: 'Phone number already registered.' });
+        }
+
+        // Save the user to the database
+        const user = new User({
+            phone,
+            name,
+            age,
+            gender,
+            username
+        });
+        await user.save();
+
+        // Generate JWT token
+        const token = jwt.sign({ id: user._id }, USER_JWT_KEY, { expiresIn: '10h' });
+
+        return res.status(201).json({ message: 'User registered successfully', token });
+    } catch (error) {
+        console.error('Error registering user:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+const resendOTP = async (req, res) => {
+    const { phone } = req.body;
+
+    // Validate phone number
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phone)) {
+        return res.status(400).json({ error: 'Invalid phone number. Please provide a 10-digit number.' });
+    }
+
+    // Generate a new 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000);
+
+    try {
+        // Payload structure
+        const payload = {
+            payload: {
+                service: ["message"],
+                user: {
+                    orderid: "TM900573", // Static order ID for now
+                    otp,                // Generated OTP
+                    number: phone,      // Phone number
+                    url: "https://photographercompany.com/"
+                },
+                sender: {
+                    template: "OTP"
+                }
+            }
+        };
+
+        // API configuration
+        const apiUrl = OTP_URL; // Replace with actual API URL
+        const headers = {
+            Authorization: MESSAGE_KEY, // Replace with your actual Authorization key
+            'Content-Type': 'application/json',
+        };
+
+        // Send OTP using Axios
+        const response = await axios.post(apiUrl, payload, { headers });
+
+        if (response.status === 200) {
+            // Remove the previous OTP for the phone number
+            otpStorage = otpStorage.filter(record => record.phone !== phone);
+
+            // Store the new OTP
+            otpStorage.push({ phone, otp });
+            console.log('Updated OTP Storage after resend:', otpStorage); // Debugging
+            return res.status(200).json({ message: 'OTP resent successfully' }); // Do not return OTP in production
+        }
+
+        return res.status(500).json({ error: 'Failed to resend OTP' });
+    } catch (error) {
+        console.error('Error resending OTP:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 const userLogout = (req, res) => {
 
 }
@@ -182,7 +370,9 @@ module.exports = {
     adminSignin,
     adminSignup,
     adminLogout,
-    userSignup,
-    userSignin,
-    userLogout
+    userLogout,
+    sendOTP,
+    resendOTP,
+    verifyOTP,
+    registerUser
 }

@@ -1,10 +1,19 @@
 {
     "files.exclude": {
         "package-lock.json": true,
-        // ".gitignore": true,
-        // "uploads": true,
+        ".gitignore": true,
+        "uploads": true,
         "node_modules": true,
         // "package.json": true,
-        // ".env": true
+        // ".env": true,
+        "final": true,
+        "iserror": true,
+        "optimized": true,
+        "assembled": true,
+        "controllers/admin.js": true,
+        "controllers/analytics.js": true,
+        "controllers/cronjob.js": true,
+        "controllers/testController.js": true,
+
     }
 }
