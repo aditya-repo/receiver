@@ -28,14 +28,16 @@ const userSchema = new Schema({
     },
     followers: {
       type: Map,
-      of: Boolean, // Keys are user IDs, values are true/false
+      of: Boolean,
       default: {},
     },
     following: {
       type: Map,
-      of: Boolean, // Keys are user IDs, values are true/false
+      of: Boolean, 
       default: {},
     },
+    myevent: [ {type: String}],
+    otherevent: [{type: String}]
 }, { timestamps: true })
 
 const User = mongoose.model( "users",userSchema)

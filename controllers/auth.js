@@ -293,7 +293,7 @@ const registerUser = async (req, res)=>{
         // Generate JWT token
         const token = jwt.sign({ id: user._id }, USER_JWT_KEY, { expiresIn: '10h' });
 
-        return res.status(201).json({ message: 'User registered successfully', token });
+        return res.json({ message: 'success', token });
     } catch (error) {
         console.error('Error registering user:', error);
         return res.status(500).json({ error: 'Internal server error' });
