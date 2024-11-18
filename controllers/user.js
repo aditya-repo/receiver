@@ -53,19 +53,22 @@ const adminAccess = (req, res) => {
 }
 
 const sendFollowRequest = async (req, res) => {
-    const { masteruserid, slaveuserid } = req.body
+    const { masterid, slaveid } = req.body
+
+    console.log(req.body);
+    
 
     try {
         // Update the master's followers and the slave's following in parallel
         const [updatedMaster, updatedSlave] = await Promise.all([
             User.findByIdAndUpdate(
-                masteruserid,
-                { $set: { [`followers.${slaveuserid}`]: false } }, // Add follower with 'false' as value
+                masterid,
+                { $set: { [`followers.${slaveid}`]: false } }, 
                 { new: true }
             ),
             User.findByIdAndUpdate(
-                slaveuserid,
-                { $set: { [`following.${masteruserid}`]: false } }, // Add following with 'false' as value
+                slaveid,
+                { $set: { [`following.${masterid}`]: false } }, 
                 { new: true }
             ),
         ]);
@@ -85,9 +88,9 @@ const sendFollowRequest = async (req, res) => {
 }
 
 const acceptFollowRequest = async (req, res) => {
-    const { masteruserid, slaveuserid } = req.body;
+    const { masterid, slaveid } = req.body;
 
-    if (!masteruserid || !slaveuserid) {
+    if (!masterid || !slaveid) {
         return res.status(400).json({ error: "Both masteruserid and slaveuserid are required." });
     }
 
@@ -95,13 +98,13 @@ const acceptFollowRequest = async (req, res) => {
         // Update both the master and slave documents to mark the relationship as 'accepted'
         const [updatedMaster, updatedSlave] = await Promise.all([
             User.findByIdAndUpdate(
-                masteruserid,
-                { $set: { [`followers.${slaveuserid}`]: true } }, // Accept follower request
+                masterid,
+                { $set: { [`followers.${slaveid}`]: true } }, // Accept follower request
                 { new: true }
             ),
             User.findByIdAndUpdate(
-                slaveuserid,
-                { $set: { [`following.${masteruserid}`]: true } }, // Mark following as accepted
+                slaveid,
+                { $set: { [`following.${masterid}`]: true } }, // Mark following as accepted
                 { new: true }
             ),
         ]);
@@ -210,7 +213,7 @@ const searchUser = async (req, res) => {
             : { username: { $regex: query, $options: 'i' } }; // Case-insensitive regex for pattern matching
     
         // Search for the user with the specified fields
-        const user = await User.findOne(searchCondition, {
+        const user = await User.find(searchCondition, {
             name: 1,
             username: 1,
             phone: 1,
