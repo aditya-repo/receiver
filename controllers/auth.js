@@ -253,7 +253,7 @@ const verifyOTP = async (req, res)=>{
         if (user) {
             // Generate JWT token
             const token = jwt.sign({ id: user._id }, USER_JWT_KEY, { expiresIn: '1h' });
-            return resizeBy.json({ message: 'success', token });
+            return res.json({ message: 'success', token, profileid: user._id });
         } else {
             // Redirect to new-user page
             return res.json({ message: 'no-user', phone });
@@ -293,7 +293,7 @@ const registerUser = async (req, res)=>{
         // Generate JWT token
         const token = jwt.sign({ id: user._id }, USER_JWT_KEY, { expiresIn: '10h' });
 
-        return res.json({ message: 'success', token });
+        return res.json({ message: 'success', token,  profileid: user._id  });
     } catch (error) {
         console.error('Error registering user:', error);
         return res.status(500).json({ error: 'Internal server error' });

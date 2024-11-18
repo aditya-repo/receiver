@@ -222,6 +222,26 @@ const searchUser = async (req, res) => {
     }
 }
 
+const userprofile = async ()=>{
+    const {profileid} = req.body
+    try {
+        // Find user by ID in the database
+        const user = await User.findById(profileid);
+
+        // If user is not found, return 404 error
+        if (!user) {
+            return res.json({ message: 'User not found' });
+        }
+
+        // Return user data
+        return res.json({ user });
+    } catch (error) {
+        // If there is any error (e.g. invalid ObjectId format), catch it
+        console.error('Error fetching user by ID:', error);
+        return res.status(500).json({ message: 'Server error', error: error.message });
+    }
+}
+
 module.exports = {
     logout,
     adminAccess,
@@ -245,5 +265,6 @@ module.exports = {
     followingList,
     followerList,
     checkUsernameAvailablity,
-    searchUser
+    searchUser,
+    userprofile
 }
