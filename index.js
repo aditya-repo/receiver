@@ -23,7 +23,7 @@ const DATABSE_URL = process.env.DATABASE;
 
 const app = express();
 app.use(cors());
-app.use(express.json()); // For parsing JSON bodies
+app.use(express.json()); 
 
 // Database connection
 databaseConnection(DATABSE_URL);

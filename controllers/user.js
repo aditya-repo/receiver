@@ -222,7 +222,8 @@ const searchUser = async (req, res) => {
     }
 }
 
-const userprofile = async ()=>{
+const userprofile = async (req, res)=>{
+    
     const {profileid} = req.body
     try {
         // Find user by ID in the database
@@ -243,7 +244,7 @@ const userprofile = async ()=>{
 }
 
 module.exports = {
-    logout,
+    // logout,
     adminAccess,
     removeFavourite,
     favourite,
