@@ -77,10 +77,11 @@ const sendFollowRequest = async (req, res) => {
             return res.status(404).json({ error: "One or both users not found." });
         }
 
-        res.status(200).json({
-            message: "Followers and following updated successfully.",
-            master: updatedMaster,
-            slave: updatedSlave,
+        const user = await User.findById(slaveid)
+
+        res.json({
+            message: "request-sent",
+            user
         });
     } catch (err) {
         res.status(500).json({ error: "Server error" });
