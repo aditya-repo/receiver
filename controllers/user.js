@@ -126,7 +126,9 @@ const acceptFollowRequest = async (req, res) => {
 
 const followingList = async (req, res) => {
 
-    const { userid } = req.params;
+    console.log(req.body);
+    
+    const { userid } = req.body;
 
     try {
         // Find the user by ID
@@ -144,9 +146,9 @@ const followingList = async (req, res) => {
             { name: 1, username: 1, profileurl: 1 } // Select only required fields
         );
 
-        res.status(200).json({
-            message: "Following list retrieved successfully",
-            following: followingProfiles,
+        res.json({
+            message: "success",
+            followinglist: followingProfiles,
         });
     } catch (err) {
         console.error(err);
