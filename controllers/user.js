@@ -176,9 +176,9 @@ const followerList = async (req, res) => {
             { name: 1, username: 1, profileurl: 1 } // Select only required fields
         );
 
-        res.status(200).json({
-            message: "Following list retrieved successfully",
-            following: followingProfiles,
+        res.json({
+            message: "success",
+            followerlist: followingProfiles,
         });
     } catch (err) {
         console.error(err);
@@ -203,6 +203,7 @@ const checkUsernameAvailablity = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 }
+
 const searchUser = async (req, res) => {
     const { query } = req.params;
 
