@@ -197,30 +197,38 @@ const checkUsernameAvailablity = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 }
-
 const searchUser = async (req, res) => {
     const { query } = req.params;
 
     try {
-        // Determine if the query is a number or alphanumeric
-        const isNumber = /^\d+$/.test(query);
+        // Check if the query is a valid 10-digit number
+        const isPhoneNumber = /^\d{10}$/.test(query);
 
-        // Define the search condition
-        const searchCondition = isNumber ? { phone: query } : { username: query };
-
-        // Search for the user
-        const user = await User.findOne(searchCondition, { name: 1, username: 1, phone: 1, profileurl: 1 });
+        // Define the search condition based on the query type
+        const searchCondition = isPhoneNumber 
+            ? { phone: query } 
+            : { username: { $regex: query, $options: 'i' } }; // Case-insensitive regex for pattern matching
+    
+        // Search for the user with the specified fields
+        const user = await User.findOne(searchCondition, {
+            name: 1,
+            username: 1,
+            phone: 1,
+            profileurl: 1
+        });
 
         if (!user) {
-            return res.status(404).json({ message: "User not found." });
+            return res.json({ message: "not-found" });
         }
 
-        res.status(200).json({ message: "User found.", user });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Server error" });
+        // Return the found user
+        res.json(user);
+
+    } catch (error) {
+        console.error("Error while searching user:", error);
+        res.status(500).json({ message: "server-error" });
     }
-}
+};
 
 const userprofile = async (req, res)=>{
     

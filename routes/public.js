@@ -11,6 +11,6 @@ app.route('/register-user').post(registerUser)
 app.route('/send-friend-request').post(sendFollowRequest)
 app.route('/accept-friend-request').post(acceptFollowRequest)
 app.route('/check-user-availablity').post(checkUsernameAvailablity)
-app.route('/search-user').post(searchUser)
+app.route('/search-user/:query').post(searchUser)
 
 module.exports = app
