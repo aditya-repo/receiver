@@ -193,7 +193,7 @@ const followingList = async (req, res) => {
 
 const followerList = async (req, res) => {
 
-    const { userid } = req.params;
+    const { userid } = req.body;
 
     try {
         // Find the user by ID
