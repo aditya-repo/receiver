@@ -88,6 +88,42 @@ const sendFollowRequest = async (req, res) => {
     }
 }
 
+const sendUnfollowRequest = async (req, res) => {
+    const { masterid, slaveid } = req.body;
+
+    console.log(req.body);
+
+    try {
+        // Remove the master's followers and the slave's following in parallel
+        const [updatedMaster, updatedSlave] = await Promise.all([
+            User.findByIdAndUpdate(
+                masterid,
+                { $unset: { [`followers.${slaveid}`]: "" } }, // Remove the follower
+                { new: true }
+            ),
+            User.findByIdAndUpdate(
+                slaveid,
+                { $unset: { [`following.${masterid}`]: "" } }, // Remove the following
+                { new: true }
+            ),
+        ]);
+
+        if (!updatedMaster || !updatedSlave) {
+            return res.status(404).json({ error: "One or both users not found." });
+        }
+
+        const user = await User.findById(slaveid);
+
+        res.json({
+            message: "unfollowed-successfully",
+            user,
+        });
+    } catch (err) {
+        res.status(500).json({ error: "Server error" });
+    }
+};
+
+
 const acceptFollowRequest = async (req, res) => {
     const { masterid, slaveid } = req.body;
 
@@ -117,7 +153,6 @@ const acceptFollowRequest = async (req, res) => {
         res.status(200).json({
             message: "Follow request accepted successfully.",
             master: updatedMaster,
-            slave: updatedSlave,
         });
     } catch (err) {
         res.status(500).json({ error: "Server error" });
@@ -168,7 +203,7 @@ const followerList = async (req, res) => {
         }
 
         // Extract following IDs from the map
-        const followingIds = Array.from(user.follower.keys());
+        const followingIds = Array.from(user.followers.keys());
 
         // Fetch details of users in the following list
         const followingProfiles = await User.find(
@@ -258,6 +293,11 @@ const userprofile = async (req, res)=>{
     }
 }
 
+const unsendFollowRequest = async (req, res)=>{
+
+}
+
+
 module.exports = {
     // logout,
     adminAccess,
@@ -282,5 +322,6 @@ module.exports = {
     followerList,
     checkUsernameAvailablity,
     searchUser,
-    userprofile
+    userprofile,
+    sendUnfollowRequest
 }
