@@ -274,10 +274,17 @@ const searchUser = async (req, res) => {
 
 const userprofile = async (req, res)=>{
     
-    const {profileid} = req.body
+    const {userid} = req.body
     try {
         // Find user by ID in the database
-        const user = await User.findById(profileid);
+        const user = await User.findById(userid, {
+            name: 1,
+            username: 1,
+            age: 1,
+            profileurl: 1,
+            gender: 1, 
+            bio: 1
+        });
 
         // If user is not found, return 404 error
         if (!user) {
@@ -291,10 +298,6 @@ const userprofile = async (req, res)=>{
         console.error('Error fetching user by ID:', error);
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
-}
-
-const unsendFollowRequest = async (req, res)=>{
-
 }
 
 

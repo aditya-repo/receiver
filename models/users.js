@@ -23,6 +23,9 @@ const userSchema = new Schema({
     age: {
         type: Number
     },
+    bio:{
+        type: String
+    },
     gender: {
         type: String
     },
