@@ -307,7 +307,7 @@ const userprofile = async (req, res)=>{
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
       // Specify the directory to store uploaded images
-      const uploadDir = path.join(__dirname, '../../public/profile');
+      const uploadDir = path.join(__dirname, '../../images/profile');
       
       // Ensure the directory exists, if not create it
       if (!fs.existsSync(uploadDir)) {
@@ -335,7 +335,7 @@ const storage = multer.diskStorage({
       let profileImagePath = null;
       if (req.file) {
         // Store the image path relative to the server root
-        profileImagePath = `../uploads/${req.file.filename}`;
+        profileImagePath = `${req.file.filename}`;
       }
   
       // Find the user by their ID and update the profile
