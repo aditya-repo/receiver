@@ -278,16 +278,10 @@ const searchUser = async (req, res) => {
 const userprofile = async (req, res)=>{
     
     const {userid} = req.body
+    
     try {
         // Find user by ID in the database
-        const user = await User.findById(userid, {
-            name: 1,
-            username: 1,
-            age: 1,
-            profileurl: 1,
-            gender: 1, 
-            bio: 1
-        });
+        const user = await User.findById(userid);
 
         // If user is not found, return 404 error
         if (!user) {
