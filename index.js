@@ -31,7 +31,7 @@ databaseConnection(DATABSE_URL);
 // Temporary storage for chunks
 const upload = multer({ dest: "uploads/temp" });
 
-app.use('/public', express.static('public'));
+app.use('/public', express.static('../public'));
 
 app.post("/admin-login", validateLogin, adminSignin);
 app.post("/login", studioSignin);

@@ -307,7 +307,7 @@ const userprofile = async (req, res)=>{
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
       // Specify the directory to store uploaded images
-      const uploadDir = path.join(__dirname, '../public/uploads');
+      const uploadDir = path.join(__dirname, '../../public/profile');
       
       // Ensure the directory exists, if not create it
       if (!fs.existsSync(uploadDir)) {
@@ -318,7 +318,7 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
       // Set a unique filename for the uploaded image (e.g., timestamp + original name)
-      const filename = `${Date.now()}-${file.originalname}`;
+      const filename = `${file.originalname}`;
       cb(null, filename);
     }
   });
@@ -335,7 +335,7 @@ const storage = multer.diskStorage({
       let profileImagePath = null;
       if (req.file) {
         // Store the image path relative to the server root
-        profileImagePath = `/uploads/${req.file.filename}`;
+        profileImagePath = `../uploads/${req.file.filename}`;
       }
   
       // Find the user by their ID and update the profile
@@ -352,7 +352,9 @@ const storage = multer.diskStorage({
       user.gender = gender || user.gender;
       user.bio = bio || user.bio;
       if (profileImagePath) {
-        user.profileImage = profileImagePath; // Set new profile image if available
+        user.profileurl = profileImagePath; // Set new profile image if available
+      }else{
+        user.profileurl = user.profileurl
       }
   
       // Save the updated user data
