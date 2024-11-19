@@ -1,6 +1,6 @@
 const express = require("express")
 const { sendOTP, verifyOTP, registerUser, resendOTP } = require("../controllers/auth")
-const { sendFollowRequest, acceptFollowRequest, checkUsernameAvailablity, searchUser, updateProfile, userprofile, followingList, followerList, sendUnfollowRequest } = require("../controllers/user")
+const { sendFollowRequest, acceptFollowRequest, checkUsernameAvailablity, searchUser, userprofile, followingList, followerList, sendUnfollowRequest, updateUserProfile, upload } = require("../controllers/user")
 const app = express()
 
 app.route('/profile').post(userprofile)
@@ -15,5 +15,7 @@ app.route('/search-user/:query').post(searchUser)
 app.route('/following-list').post(followingList)
 app.route('/follower-list').post(followerList)
 app.route('/unfollow').post(sendUnfollowRequest)
+app.put('/update-profile', upload.single('profileImage'), updateUserProfile);
+
 
 module.exports = app

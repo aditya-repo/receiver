@@ -1,4 +1,7 @@
 const User = require("../models/users")
+const multer = require("multer")
+const fs = require("fs")
+const path = require("path")
 
 const deleteUser = (req, res) => {
 
@@ -300,6 +303,74 @@ const userprofile = async (req, res)=>{
     }
 }
 
+// Configure multer for image upload (store in a local 'uploads' directory)
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      // Specify the directory to store uploaded images
+      const uploadDir = path.join(__dirname, '../public/uploads');
+      
+      // Ensure the directory exists, if not create it
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      
+      cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+      // Set a unique filename for the uploaded image (e.g., timestamp + original name)
+      const filename = `${Date.now()}-${file.originalname}`;
+      cb(null, filename);
+    }
+  });
+  
+  const upload = multer({ storage: storage });
+  
+  // Update user profile controller
+  const updateUserProfile = async (req, res) => {
+    try {
+      // Get user data from the request body
+      const { username, name, age, gender, bio, userid } = req.body;
+  
+      // Handle image upload (if image exists in the request)
+      let profileImagePath = null;
+      if (req.file) {
+        // Store the image path relative to the server root
+        profileImagePath = `/uploads/${req.file.filename}`;
+      }
+  
+      // Find the user by their ID and update the profile
+      const user = await User.findById(userid);
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Update user fields
+      user.username = username || user.username;
+      user.name = name || user.name;
+      user.age = age || user.age;
+      user.gender = gender || user.gender;
+      user.bio = bio || user.bio;
+      if (profileImagePath) {
+        user.profileImage = profileImagePath; // Set new profile image if available
+      }
+  
+      // Save the updated user data
+      await user.save();
+  
+      // Send response
+      return res.status(200).json({
+        message: 'Profile updated successfully',
+        user: user,
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      return res.status(500).json({ message: 'Error updating profile' });
+    }
+  };
+  
+  
+
 
 module.exports = {
     // logout,
@@ -326,5 +397,7 @@ module.exports = {
     checkUsernameAvailablity,
     searchUser,
     userprofile,
-    sendUnfollowRequest
+    sendUnfollowRequest,
+    updateUserProfile,
+    upload
 }
