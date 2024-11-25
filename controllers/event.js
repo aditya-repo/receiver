@@ -26,6 +26,7 @@ const adminEventList = async (req, res) => {
             status: 'completed'
         }).select('clientId folder').lean();
 
+        // Create a map of clientId to folder
         const serviceClientFolders = serviceStatusList.reduce((acc, service) => {
             acc[service.clientId] = service.folder;
             return acc;
@@ -34,32 +35,63 @@ const adminEventList = async (req, res) => {
         // Step 4: Fetch image list
         const imageList = await SignatureUrl.find({ clientId: { $in: clientIds } }).lean();
 
-        // Step 5: Map imageList with finalName and group by clientId and occassionname
-        const finalImageList = eventList
-            .map(event => {
-                const filteredImages = imageList
-                    .filter(image => image.clientId === event.clientId)
-                    .map(image => {
-                        const folders = serviceClientFolders[image.clientId] || [];
-                        const matchedFolder = folders.find(folder => folder.indexname === image.name);
+        // Step 5: Process the imageList to create final structured data
+        const finalImageList = eventList.map(event => {
+            const filteredImages = imageList
+                .filter(image => image.clientId === event.clientId)
+                .reduce((acc, image) => {
+                    const existingEntry = acc.find(entry => entry.name === image.name);
+                    if (!existingEntry) {
+                        // Find the matching folder in serviceClientFolders by indexname
+                        const matchedFolder = serviceClientFolders[image.clientId]?.find(
+                            folder => folder.indexname === image.name
+                        );
 
-                        return {
-                            ...image,
-                            finalName: matchedFolder ? matchedFolder.foldername : null
-                        };
-                    });
+                        const finalName = matchedFolder ? matchedFolder.foldername : null; // Extract the foldername
 
-                // Only include clients with at least one image
-                if (filteredImages.length > 0) {
-                    return {
-                        clientId: event.clientId,
-                        occassionname: event.occassionname,
-                        data: filteredImages
-                    };
-                }
-                return null;
-            })
-            .filter(client => client !== null); // Remove clients with no images
+                        acc.push({
+                            name: image.name,
+                            finalName: finalName, // Only store the foldername as finalName
+                            data: image.data.map(item => ({
+                                filename: item.filename,
+                                thumbnail: image.type === 'thumbnail' ? item.url : null,
+                                final: image.type === 'final' ? item.url : null,
+                            }))
+                        });
+                    } else {
+                        image.data.forEach(item => {
+                            const matchedFile = existingEntry.data.find(
+                                file => file.filename === item.filename
+                            );
+                            if (matchedFile) {
+                                if (image.type === 'thumbnail') {
+                                    matchedFile.thumbnail = item.url;
+                                }
+                                if (image.type === 'final') {
+                                    matchedFile.final = item.url;
+                                }
+                            } else {
+                                existingEntry.data.push({
+                                    filename: item.filename,
+                                    thumbnail: image.type === 'thumbnail' ? item.url : null,
+                                    final: image.type === 'final' ? item.url : null,
+                                });
+                            }
+                        });
+                    }
+                    return acc;
+                }, []);
+
+            // Only include clients with at least one image
+            if (filteredImages.length > 0) {
+                return {
+                    clientId: event.clientId,
+                    occassionname: event.occassionname,
+                    data: filteredImages,
+                };
+            }
+            return null;
+        }).filter(client => client !== null); // Remove clients with no images
 
         // Step 6: Respond with the final structured image list
         res.json(finalImageList);
@@ -69,7 +101,6 @@ const adminEventList = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
-
 
 
 module.exports = { adminEventList }
