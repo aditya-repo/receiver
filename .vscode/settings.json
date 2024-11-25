@@ -12,7 +12,7 @@
         "assembled": true,
         "controllers/admin.js": true,
         "controllers/analytics.js": true,
-        "controllers/cronjob.js": true,
+        // "controllers/cronjob.js": true,
         "controllers/testController.js": true,
 
     }

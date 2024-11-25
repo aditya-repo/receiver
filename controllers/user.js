@@ -59,19 +59,19 @@ const sendFollowRequest = async (req, res) => {
     const { masterid, slaveid } = req.body
 
     console.log(req.body);
-    
+
 
     try {
         // Update the master's followers and the slave's following in parallel
         const [updatedMaster, updatedSlave] = await Promise.all([
             User.findByIdAndUpdate(
                 masterid,
-                { $set: { [`followers.${slaveid}`]: false } }, 
+                { $set: { [`followers.${slaveid}`]: false } },
                 { new: true }
             ),
             User.findByIdAndUpdate(
                 slaveid,
-                { $set: { [`following.${masterid}`]: false } }, 
+                { $set: { [`following.${masterid}`]: false } },
                 { new: true }
             ),
         ]);
@@ -165,7 +165,7 @@ const acceptFollowRequest = async (req, res) => {
 const followingList = async (req, res) => {
 
     console.log(req.body);
-    
+
     const { userid } = req.body;
 
     try {
@@ -250,10 +250,10 @@ const searchUser = async (req, res) => {
         const isPhoneNumber = /^\d{10}$/.test(query);
 
         // Define the search condition based on the query type
-        const searchCondition = isPhoneNumber 
-            ? { phone: query } 
+        const searchCondition = isPhoneNumber
+            ? { phone: query }
             : { username: { $regex: query, $options: 'i' } }; // Case-insensitive regex for pattern matching
-    
+
         // Search for the user with the specified fields
         const user = await User.find(searchCondition, {
             name: 1,
@@ -275,10 +275,10 @@ const searchUser = async (req, res) => {
     }
 };
 
-const userprofile = async (req, res)=>{
-    
-    const {userid} = req.body
-    
+const userprofile = async (req, res) => {
+
+    const { userid } = req.body
+
     try {
         // Find user by ID in the database
         const user = await User.findById(userid);
@@ -300,72 +300,72 @@ const userprofile = async (req, res)=>{
 // Configure multer for image upload (store in a local 'uploads' directory)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      // Specify the directory to store uploaded images
-      const uploadDir = path.join(__dirname, '../../images/profile');
-      
-      // Ensure the directory exists, if not create it
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-      
-      cb(null, uploadDir);
+        // Specify the directory to store uploaded images
+        const uploadDir = path.join(__dirname, '../../images/profile');
+
+        // Ensure the directory exists, if not create it
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
-      // Set a unique filename for the uploaded image (e.g., timestamp + original name)
-      const filename = `${file.originalname}`;
-      cb(null, filename);
+        // Set a unique filename for the uploaded image (e.g., timestamp + original name)
+        const filename = `${file.originalname}`;
+        cb(null, filename);
     }
-  });
-  
-  const upload = multer({ storage: storage });
-  
-  // Update user profile controller
-  const updateUserProfile = async (req, res) => {
+});
+
+const upload = multer({ storage: storage });
+
+// Update user profile controller
+const updateUserProfile = async (req, res) => {
     try {
-      // Get user data from the request body
-      const { username, name, age, gender, bio, userid } = req.body;
-  
-      // Handle image upload (if image exists in the request)
-      let profileImagePath = null;
-      if (req.file) {
-        // Store the image path relative to the server root
-        profileImagePath = `${req.file.filename}`;
-      }
-  
-      // Find the user by their ID and update the profile
-      const user = await User.findById(userid);
-  
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      // Update user fields
-      user.username = username || user.username;
-      user.name = name || user.name;
-      user.age = age || user.age;
-      user.gender = gender || user.gender;
-      user.bio = bio || user.bio;
-      if (profileImagePath) {
-        user.profileurl = profileImagePath; // Set new profile image if available
-      }else{
-        user.profileurl = user.profileurl
-      }
-  
-      // Save the updated user data
-      await user.save();
-  
-      // Send response
-      return res.status(200).json({
-        message: 'Profile updated successfully',
-        user: user,
-      });
+        // Get user data from the request body
+        const { username, name, age, gender, bio, userid } = req.body;
+
+        // Handle image upload (if image exists in the request)
+        let profileImagePath = null;
+        if (req.file) {
+            // Store the image path relative to the server root
+            profileImagePath = `${req.file.filename}`;
+        }
+
+        // Find the user by their ID and update the profile
+        const user = await User.findById(userid);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update user fields
+        user.username = username || user.username;
+        user.name = name || user.name;
+        user.age = age || user.age;
+        user.gender = gender || user.gender;
+        user.bio = bio || user.bio;
+        if (profileImagePath) {
+            user.profileurl = profileImagePath; // Set new profile image if available
+        } else {
+            user.profileurl = user.profileurl
+        }
+
+        // Save the updated user data
+        await user.save();
+
+        // Send response
+        return res.status(200).json({
+            message: 'Profile updated successfully',
+            user: user,
+        });
     } catch (error) {
-      console.error('Error updating profile:', error);
-      return res.status(500).json({ message: 'Error updating profile' });
+        console.error('Error updating profile:', error);
+        return res.status(500).json({ message: 'Error updating profile' });
     }
-  };
-  
-  
+};
+
+
 
 
 module.exports = {
